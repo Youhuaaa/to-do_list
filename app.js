@@ -3,6 +3,8 @@ const app = express()
 const port = 3000
 
 const exphbs = require('express-handlebars')
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
+app.set('view engine', 'handlebars')
 
 // connect to database MongoDB vis mongoose
 const mongoose = require('mongoose')
@@ -18,7 +20,7 @@ db.once('open', () => {
 })
 
 app.get('/', (req, res) => {
-  res.send('Initialize /project')
+  res.render('index')
 })
 
 app.listen(port, () => {
