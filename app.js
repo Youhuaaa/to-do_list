@@ -6,6 +6,8 @@ const exphbs = require('express-handlebars')
 app.engine('handlebars', exphbs({ defaultLayout: 'main' }))
 app.set('view engine', 'handlebars')
 
+app.use(express.urlencoded({ extended: true }))
+
 const Todo = require('./models/todo.js')
 
 // connect to database MongoDB vis mongoose
@@ -24,8 +26,19 @@ db.once('open', () => {
 app.get('/', (req, res) => {
   Todo.find()
     .lean()
-    .then(todos => res.render('index', {todos: todos}))
+    .then(todos => res.render('index', { todos: todos }))
     .catch(error => console.log(error))
+})
+
+app.get('/todos/new', (req, res) => {
+  res.render('new')
+})
+
+app.post('/todos', (req, res) => {
+  const name = req.body.name
+  return Todo.create({ name })
+    .then(() => { res.redirect('/') })
+    .catch(error => { console.log(error) })
 })
 
 app.listen(port, () => {
