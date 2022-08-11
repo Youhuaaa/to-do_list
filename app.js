@@ -34,6 +34,15 @@ app.get('/todos/new', (req, res) => {
   res.render('new')
 })
 
+app.get('/todos/:id', (req, res) => {
+  Todo.findById(req.params.id)
+    .lean()
+    .then((todo) => {
+      res.render('detail', {todo: todo})
+    })
+    .catch(error => console.log(error))
+})
+
 app.post('/todos', (req, res) => {
   const name = req.body.name
   return Todo.create({ name })
