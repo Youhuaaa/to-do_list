@@ -38,8 +38,15 @@ app.get('/todos/:id', (req, res) => {
   Todo.findById(req.params.id)
     .lean()
     .then((todo) => {
-      res.render('detail', {todo: todo})
+      res.render('detail', { todo: todo })
     })
+    .catch(error => console.log(error))
+})
+
+app.get('/todos/:id/edit', (req, res) => {
+  Todo.findById(req.params.id)
+    .lean()
+    .then(todo => res.render('edit', { todo: todo }))
     .catch(error => console.log(error))
 })
 
@@ -48,6 +55,18 @@ app.post('/todos', (req, res) => {
   return Todo.create({ name })
     .then(() => { res.redirect('/') })
     .catch(error => { console.log(error) })
+})
+
+app.post('/todos/:id/edit', (req, res) => {
+  const name = req.body.name
+  const id = req.params.id
+  return Todo.findById(id)
+    .then(todo => {
+      todo.name = name
+      todo.save()
+    })
+    .then(() => res.redirect(`/todos/${id}`))
+    .catch(error => console.log(error))
 })
 
 app.listen(port, () => {
