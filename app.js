@@ -15,6 +15,10 @@ const mongoose = require('mongoose')
 mongoose.connect('mongodb+srv://youhuaaa:8EeNc5NyFn@cluster0.9pcddue.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
 const db = mongoose.connection
 
+// method override
+const methodOverride = require('method-override')
+app.use(methodOverride('_method'))
+
 db.on('error', () => {
   console.log('mongodb error')
 })
@@ -26,7 +30,7 @@ db.once('open', () => {
 app.get('/', (req, res) => {
   Todo.find()
     .lean()
-    .sort({_id: 'asc'})
+    .sort({ _id: 'asc' })
     .then(todos => res.render('index', { todos: todos }))
     .catch(error => console.log(error))
 })
@@ -58,7 +62,7 @@ app.post('/todos', (req, res) => {
     .catch(error => { console.log(error) })
 })
 
-app.post('/todos/:id/edit', (req, res) => {
+app.put('/todos/:id/edit', (req, res) => {
   const name = req.body.name
   const id = req.params.id
   return Todo.findById(id)
@@ -71,11 +75,17 @@ app.post('/todos/:id/edit', (req, res) => {
     .catch(error => console.log(error))
 })
 
-app.post('/todos/:id/delete', (req, res) => {
+app.delete('/todos/:id/delete', (req, res) => {
   const id = req.params.id
   Todo.findById(id)
     .then(todo => todo.remove())
-    .then(res.redirect('/'))
+    .then(
+      Todo.find()
+        .lean()
+        .sort({ _id: 'asc' })
+        .then(todos => res.render('index', { todos: todos }))
+        .catch(error => console.log(error))
+    )
     .catch(error => console.log(error))
 })
 
